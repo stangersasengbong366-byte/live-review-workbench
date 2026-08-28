@@ -11,14 +11,15 @@ OUTPUT.mkdir(exist_ok=True)
 (OUTPUT / ".github" / "workflows").mkdir(parents=True, exist_ok=True)
 
 shutil.copyfile(ROOT / "index.html", OUTPUT / "index.html")
+shutil.copyfile(ROOT / "transcriber-worker.js", OUTPUT / "transcriber-worker.js")
 shutil.copytree(ROOT / "assets", OUTPUT / "assets", dirs_exist_ok=True)
 (OUTPUT / ".nojekyll").write_text("", encoding="utf-8")
 (OUTPUT / "README.md").write_text(
     """# 伪直播审核工作台
 
-公开演示版支持视频预览、时间区间定位、风险词库和审核单导出。
+免费公开版支持浏览器端语音识别、视频预览、时间区间定位、风险词库和审核单导出。
 
-> GitHub Pages 不运行本机语音识别服务。示例链接可直接查看逐字稿；识别新的长视频链接需使用本机版审核台。
+> 音视频和模型都在访问者自己的浏览器中处理，不上传服务器。首次使用需要下载浏览器识别模型。
 """,
     encoding="utf-8",
 )
