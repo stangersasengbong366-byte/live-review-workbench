@@ -1,0 +1,10 @@
+.DS_Store
+.models/
+.venv/
+__pycache__/
+github-pages/
+server.log
+transcripts/*.json
+*.command
+*.plist
+*.app/

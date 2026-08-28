@@ -1,0 +1,10 @@
+.DS_Store
+.git
+.github
+.models
+.venv
+__pycache__
+github-pages
+server.log
+*.command
+build_public.py
