@@ -2,7 +2,7 @@ import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers
 
 const MODEL_ID = "onnx-community/whisper-base_timestamped";
 const SAMPLE_RATE = 16000;
-const TRANSCRIPTION_WINDOW_SECONDS = 180;
+const TRANSCRIPTION_WINDOW_SECONDS = 30;
 const DEVICE_CONFIG = {
   webgpu: {
     device: "webgpu",
@@ -19,6 +19,15 @@ const DEVICE_CONFIG = {
 
 let transcriber = null;
 let activeDevice = null;
+
+function cleanTranscriptText(value) {
+  return String(value || "")
+    .replace(/\uFFFD/g, "")
+    .replace(/([\u3400-\u9fff]{2,8}?)\1{2,}/g, "$1$1")
+    .replace(/([\u3400-\u9fff])\1{3,}/g, "$1$1$1")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 async function loadModel(requestId, device) {
   const selectedDevice = DEVICE_CONFIG[device] ? device : "wasm";
@@ -68,7 +77,7 @@ async function transcribe(requestId, { audio, language }) {
       for (const chunk of windowChunks) {
         const relativeStart = Math.max(0, Number(chunk.timestamp?.[0]) || 0);
         const relativeEnd = Number(chunk.timestamp?.[1]);
-        const text = String(chunk.text || "").trim();
+        const text = cleanTranscriptText(chunk.text);
         if (!text) continue;
         chunks.push({
           ...chunk,
@@ -82,7 +91,7 @@ async function transcribe(requestId, { audio, language }) {
         });
       }
     } else {
-      const text = String(result?.text || "").trim();
+      const text = cleanTranscriptText(result?.text);
       if (text) {
         chunks.push({
           text,
@@ -91,7 +100,7 @@ async function transcribe(requestId, { audio, language }) {
       }
     }
 
-    const windowText = String(result?.text || "").trim();
+    const windowText = cleanTranscriptText(result?.text);
     if (windowText) textParts.push(windowText);
     const progress = Math.round((end / samples.length) * 100);
     self.postMessage({
