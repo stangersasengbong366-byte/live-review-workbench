@@ -1,8 +1,10 @@
 import { pipeline } from "https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.8.1";
+import * as OpenCC from "https://cdn.jsdelivr.net/npm/opencc-js@1.0.5/dist/esm/t2cn.js";
 
 const MODEL_ID = "onnx-community/whisper-base_timestamped";
 const SAMPLE_RATE = 16000;
 const TRANSCRIPTION_WINDOW_SECONDS = 30;
+const toSimplifiedChinese = OpenCC.Converter({ from: "tw", to: "cn" });
 const DEVICE_CONFIG = {
   webgpu: {
     device: "webgpu",
@@ -21,7 +23,7 @@ let transcriber = null;
 let activeDevice = null;
 
 function cleanTranscriptText(value) {
-  return String(value || "")
+  return toSimplifiedChinese(String(value || ""))
     .replace(/\uFFFD/g, "")
     .replace(/([\u3400-\u9fff]{2,8}?)\1{2,}/g, "$1$1")
     .replace(/([\u3400-\u9fff])\1{3,}/g, "$1$1$1")
